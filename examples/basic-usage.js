@@ -1,21 +1,29 @@
 // examples/basic-usage.js
 const { compareScreenshots } = require('../src/index');
 
+/**
+ * Basic example of visual regression testing
+ */
 async function runExample() {
-  console.log('Running basic visual regression example...');
+  console.log('=== Running Visual Regression Example ===\n');
 
   try {
-    const result = await compareScreenshots({
+    // Example 1: Test homepage
+    const result1 = await compareScreenshots({
       url: 'https://example.com',
-      name: 'example-homepage',
-      threshold: 0.05,        // 5% difference allowed
+      name: 'homepage',
+      threshold: 5,           // Allow up to 5% difference
       updateBaseline: false
     });
 
-    console.log('Comparison completed!');
-    console.log('Result:', result);
+    console.log('Homepage test completed.\n');
+
+    // You can add more tests here
+    // const result2 = await compareScreenshots({...});
+
+    console.log('=== All tests completed ===');
   } catch (error) {
-    console.error('Error running example:', error);
+    console.error('Error during testing:', error);
   }
 }
 
