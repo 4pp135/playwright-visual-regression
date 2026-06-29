@@ -2,38 +2,40 @@
 const { takeScreenshot } = require('./screenshot');
 const { compareImages } = require('./compare');
 const { generateReport } = require('./report');
+const path = require('path');
+const fs = require('fs');
+
+const BASELINE_DIR = path.join(__dirname, '..', 'screenshots', 'baseline');
 
 /**
- * Main function to compare screenshots
- * @param {Object} options
- * @param {string} options.url - URL to capture
- * @param {string} options.name - Name for the screenshot
- * @param {number} [options.threshold=0.1] - Difference threshold (0-1)
- * @param {boolean} [options.updateBaseline=false] - Update baseline image
+ * Main function for visual regression testing
  */
-async function compareScreenshots(options) {
-  const {
-    url,
-    name,
-    threshold = 0.1,
-    updateBaseline = false
-  } = options;
+async function compareScreenshots({ url, name, threshold = 5, updateBaseline = false }) {
+  console.log(`\n[Visual Test] Starting: ${name}`);
 
-  console.log(`Starting visual comparison for: ${name}`);
+  if (!fs.existsSync(BASELINE_DIR)) {
+    fs.mkdirSync(BASELINE_DIR, { recursive: true });
+  }
 
-  // Take current screenshot
+  const baselinePath = path.join(BASELINE_DIR, `${name}.png`);
   const currentPath = await takeScreenshot(url, name);
 
-  // TODO: Implement comparison logic
-  console.log('Comparison logic will be implemented here');
+  if (!fs.existsSync(baselinePath) || updateBaseline) {
+    fs.copyFileSync(currentPath, baselinePath);
+    console.log('Baseline image created/updated.');
+    return { name, passed: true, message: 'Baseline created' };
+  }
 
-  return {
-    name,
-    currentPath,
-    passed: true // Placeholder
-  };
+  const result = compareImages(baselinePath, currentPath, threshold);
+  generateReport(result, name);
+
+  if (result.passed) {
+    console.log(`\u2705 ${name} - PASSED (${result.diffPercentage}% difference)`);
+  } else {
+    console.log(`\u274c ${name} - FAILED (${result.diffPercentage}% difference)`);
+  }
+
+  return result;
 }
 
-module.exports = {
-  compareScreenshots
-};
+module.exports = { compareScreenshots };
