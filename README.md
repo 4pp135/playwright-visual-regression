@@ -15,7 +15,7 @@ This project was created to make visual regression testing more accessible witho
 - Visual diff generation with highlighted differences
 - Configurable difference threshold
 - Simple and clean HTML report generation
-- Easy baseline update functionality
+- Easy baseline update with `--update` flag
 - Support for responsive testing (desktop & mobile)
 
 ## Why this project?
@@ -44,15 +44,30 @@ npx playwright install
 
 ## Usage
 
+### Using as a library
+
 ```js
 const { compareScreenshots } = require('playwright-visual-regression');
 
 await compareScreenshots({
   url: 'https://example.com',
   name: 'homepage',
-  threshold: 0.02,        // Allow up to 2% visual difference
+  threshold: 5,           // Allow up to 5% visual difference
   updateBaseline: false
 });
+```
+
+### Using from command line (Recommended)
+
+```bash
+# Normal run (compare images)
+node examples/basic-usage.js
+
+# Update baseline images
+node examples/basic-usage.js --update
+
+# Same as --update
+node examples/basic-usage.js -u
 ```
 
 ## Project Goals
@@ -79,6 +94,7 @@ playwright-visual-regression/
 │   ├── compare.js
 │   └── report.js
 ├── examples/
+│   └── basic-usage.js
 └── LICENSE
 ```
 
